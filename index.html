@@ -17,8 +17,10 @@
   --ink: #3a332d;
   --sub: #8a7f75;
   --line: #e6ddd3;
-  --accent: #c9776b;
-  --accent-soft: #f3dfda;
+  --accent: #a9dcf6;        /* 🩵 ボタンの色 */
+  --on-accent: #1d3a52;     /* ボタンの字の色 */
+  --accent-soft: #dcf0fb;
+  --accent-strong: #6cbde8;
   --danger: #c0473b;
   --skz: #6cbde8;   /* 🩵 */
 }
@@ -57,9 +59,8 @@ header.bar h2 { flex: 1; margin: 0; font-size: 17px; font-weight: 600; text-alig
   background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.08);
   font-size: 15px; white-space: nowrap;
 }
-.btn.primary { background: var(--accent); color: #fff; }
-.btn.primary.skz { background: #a9dcf6; color: #1d3a52; font-weight: 600; }   /* 🩵 うすめ */
-.btn.ghost { background: transparent; box-shadow: none; color: var(--accent); padding: 10px 6px; }
+.btn.primary { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.btn.ghost { background: var(--accent); color: var(--on-accent); box-shadow: none; padding: 9px 12px; font-weight: 600; }
 .btn.danger { color: var(--danger); }
 .btn:disabled { opacity: .4; }
 main { padding: 16px 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 960px; margin: 0 auto; }
@@ -207,7 +208,7 @@ main { padding: 16px 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 9
 }
 .list .item .ib:disabled { opacity: .3; }
 .list .item .ib.del { color: var(--danger); }
-.list .item .ib.add { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.list .item .ib.add { background: var(--accent); color: var(--on-accent); font-weight: 700; }
 .list .none { padding: 16px; color: var(--sub); font-size: 14px; }
 .play-big { width: 100%; padding: 14px; font-size: 16px; margin-bottom: 16px; }
 
@@ -218,7 +219,7 @@ main { padding: 16px 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 9
 .check-list { max-height: 320px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 12px; }
 .check-list label { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-bottom: 1px solid var(--line); font-size: 15px; }
 .check-list label:last-child { border-bottom: none; }
-.check-list input { width: 20px; height: 20px; accent-color: var(--accent); }
+.check-list input { width: 20px; height: 20px; accent-color: var(--accent-strong); }
 .check-list small { color: var(--sub); margin-left: auto; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; }
 .row .btn { flex: 1; }
@@ -236,7 +237,7 @@ main { padding: 16px 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 9
   display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px;
   font-size: 15px;
 }
-.spinner { width: 34px; height: 34px; border: 3px solid var(--accent-soft); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.9s linear infinite; }
+.spinner { width: 34px; height: 34px; border: 3px solid var(--accent-soft); border-top-color: var(--accent-strong); border-radius: 50%; animation: spin 0.9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
@@ -281,7 +282,7 @@ main { padding: 16px 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 9
   <header class="bar">
     <button class="btn ghost" onclick="showList()">‹ 戻る</button>
     <h2 id="plTitle"></h2>
-    <button class="btn" onclick="editPlaylist(curPlaylist.id)">編集</button>
+    <button class="btn primary" onclick="editPlaylist(curPlaylist.id)">編集</button>
   </header>
   <main>
     <button class="btn primary play-big" onclick="playPlaylist(0)">▶︎ 最初から見る</button>
@@ -324,8 +325,8 @@ main { padding: 16px 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 9
 
     <div class="section-title"><h3>歌詞のページ <span id="pageCount" style="color:var(--sub);font-weight:400"></span></h3></div>
     <div class="add-row">
-      <button class="btn" onclick="document.getElementById('camInput').click()">📷 カメラで撮る</button>
-      <button class="btn" onclick="document.getElementById('libInput').click()">🖼️ 写真から選ぶ</button>
+      <button class="btn primary" onclick="document.getElementById('camInput').click()">📷 カメラで撮る</button>
+      <button class="btn primary" onclick="document.getElementById('libInput').click()">🖼️ 写真から選ぶ</button>
     </div>
     <input type="file" id="camInput" accept="image/*" capture="environment" class="hidden" onchange="addFiles(this)">
     <input type="file" id="libInput" accept="image/*" multiple class="hidden" onchange="addFiles(this)">
@@ -880,6 +881,7 @@ function closeViewer() {
   viewUrls = []; seq = []; viewSongs = []; viewSong = null;
   document.getElementById('songBanner').classList.remove('show');
   releaseAwake();
+  setTimeout(() => applyUpdateIfIdle(), 300);
 }
 function editFromViewer() { const id = viewSong.id; closeViewer(); editSong(id); }
 function updateIndicator() {
@@ -1154,6 +1156,43 @@ function makeIcon() {
   document.getElementById('touchIcon').href = c.toDataURL('image/png');
 }
 
+/* ================= 自動アップデート =================
+   アプリを開いたとき・戻ってきたときに新しい版があるか確認して、
+   一覧画面にいるときだけ自動で入れ替える（編集中や歌詞を見ている途中は待つ）。
+   ※ 公開するたびに APP_VERSION を変えること                          */
+const APP_VERSION = '2026-10-08-5';
+let newVersionReady = false;
+
+async function checkUpdate() {
+  try {
+    // cache: 'reload' で端末の古い控えも新しい版に書き換える
+    const res = await fetch(location.pathname, { cache: 'reload' });
+    if (!res.ok) return;
+    const m = (await res.text()).match(/const APP_VERSION = '([^']+)'/);
+    if (!m || m[1] === APP_VERSION) return;
+    let tried = null;
+    try { tried = sessionStorage.getItem('lyricsUpdateTried'); } catch (e) {}
+    if (tried === m[1]) return;   // 何度も読み込み直さないための安全装置
+    newVersionReady = m[1];
+    applyUpdateIfIdle();
+  } catch (e) { /* 電波がないときなどは何もしない */ }
+}
+function applyUpdateIfIdle() {
+  if (!newVersionReady) return;
+  const idle = curView === 'listView' && viewer.classList.contains('hidden')
+    && document.getElementById('busy').classList.contains('hidden');
+  if (!idle) return;
+  try { sessionStorage.setItem('lyricsUpdateTried', newVersionReady); } catch (e) {}
+  toast('新しい版に更新するね ✨');
+  setTimeout(() => location.reload(), 900);
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkUpdate();
+});
+// 一覧画面に戻ったときにも、待っていた更新を入れる
+const _show = show;
+show = function (id) { _show(id); if (id === 'listView') setTimeout(applyUpdateIfIdle, 300); };
+
 /* ================= 起動 ================= */
 (async () => {
   makeIcon();
@@ -1161,6 +1200,7 @@ function makeIcon() {
     db = await openDB();
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
     await refresh();
+    checkUpdate();
   } catch (e) {
     alert('データを開けなかったよ。\n' + e.message);
   }
