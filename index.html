@@ -58,6 +58,7 @@ header.bar h2 { flex: 1; margin: 0; font-size: 17px; font-weight: 600; text-alig
   font-size: 15px; white-space: nowrap;
 }
 .btn.primary { background: var(--accent); color: #fff; }
+.btn.primary.skz { background: var(--skz); color: #1d3a52; font-weight: 600; }
 .btn.ghost { background: transparent; box-shadow: none; color: var(--accent); padding: 10px 6px; }
 .btn.danger { color: var(--danger); }
 .btn:disabled { opacity: .4; }
@@ -246,7 +247,7 @@ main { padding: 16px 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 9
   <header class="bar">
     <h1 class="app-title">Stray Kids 歌詞ノート</h1>
     <button class="btn" onclick="showBackup()">📲<span class="wide"> 送る・受け取る</span></button>
-    <button class="btn primary" onclick="addNew()">＋<span class="wide" id="addLabel"> 曲を</span>追加</button>
+    <button class="btn primary skz" onclick="addNew()">＋<span class="wide" id="addLabel"> 曲を</span>追加</button>
   </header>
   <main>
     <div class="seg" id="tabSeg" style="display:flex;margin-bottom:14px">
