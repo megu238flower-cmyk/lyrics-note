@@ -90,6 +90,19 @@ main { padding: 16px 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 9
 .seg button { border: none; background: transparent; padding: 6px 12px; border-radius: 8px; font-size: 13px; }
 .seg button.on { background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.1); }
 
+.title-list { background: var(--card); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.title-list:empty { display: none; }
+.tl-item {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 16px 16px; border: none; border-bottom: 1px solid var(--line); background: none;
+}
+.tl-item:last-child { border-bottom: none; }
+.tl-item:active { background: #f4eee8; }
+.tl-name { flex: 1; min-width: 0; font-size: 17px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tl-sub { color: var(--sub); font-size: 13px; flex-shrink: 0; }
+.tl-go { color: #c8bdb2; font-size: 22px; line-height: 1; flex-shrink: 0; }
+.tl-none { padding: 16px; color: var(--sub); font-size: 14px; }
+
 /* ---------- 編集 ---------- */
 .field { margin-bottom: 14px; }
 .field label { display: block; font-size: 13px; color: var(--sub); margin-bottom: 5px; }
@@ -246,14 +259,14 @@ main { padding: 16px 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 9
         <span class="spacer"></span>
         <span id="songCount" style="color:var(--sub);font-size:13px"></span>
       </div>
-      <div class="songs" id="songs"></div>
+      <div class="title-list" id="songs"></div>
       <div class="empty hidden" id="empty">
         <div class="big">📝</div>
         まだ曲がないよ<br>右上の「＋ 追加」から<br>手書きの歌詞を撮って登録してね
       </div>
     </div>
     <div id="playlistsTab" class="hidden">
-      <div class="songs" id="playlists"></div>
+      <div class="title-list" id="playlists"></div>
       <div class="empty hidden" id="plEmpty">
         <div class="big">📋</div>
         プレイリストはまだないよ<br>右上の「＋ 追加」から作ってね<br>ライブのセトリや練習用にどうぞ
@@ -526,15 +539,9 @@ function renderList() {
   document.getElementById('songCount').textContent = songsCache.length ? `${songsCache.length}曲` : '';
   document.getElementById('empty').classList.toggle('hidden', songsCache.length > 0);
   const box = document.getElementById('songs');
-  box.innerHTML = list.map(s => `
-    <button class="song" onclick="openViewer('${s.id}')">
-      <div class="thumb" data-thumb="${s.pageIds[0] || ''}">${s.pageIds.length ? '' : '🎵'}</div>
-      <div class="meta">
-        <div class="title">${esc(s.title)}</div>
-        <div class="count">${s.pageIds.length}ページ</div>
-      </div>
-    </button>`).join('');
-  box.querySelectorAll('[data-thumb]').forEach(el => setThumb(el, el.dataset.thumb));
+  box.innerHTML = list.length || !songsCache.length
+    ? list.map(s => `<button class="tl-item" onclick="openViewer('${s.id}')"><span class="tl-name">${esc(s.title)}</span><span class="tl-go">›</span></button>`).join('')
+    : '<div class="tl-none">見つからないよ</div>';
 }
 
 /* ================= プレイリスト ================= */
@@ -549,16 +556,8 @@ function renderPlaylists() {
   const box = document.getElementById('playlists');
   box.innerHTML = list.map(p => {
     const ss = plSongs(p);
-    return `
-    <button class="song pl-card" onclick="openPlaylist('${p.id}')">
-      <div class="thumb" data-thumb="${ss[0]?.pageIds[0] || ''}">${ss.length ? '' : '📋'}<span class="badge">${ss.length}曲</span></div>
-      <div class="meta">
-        <div class="title">${esc(p.name)}</div>
-        <div class="count">${esc(ss.slice(0, 3).map(s => s.title).join('、'))}${ss.length > 3 ? ' …' : ''}</div>
-      </div>
-    </button>`;
+    return `<button class="tl-item" onclick="openPlaylist('${p.id}')"><span class="tl-name">${esc(p.name)}</span><span class="tl-sub">${ss.length}曲</span><span class="tl-go">›</span></button>`;
   }).join('');
-  box.querySelectorAll('[data-thumb]').forEach(el => setThumb(el, el.dataset.thumb));
 }
 function songRow(s, i, buttons = '') {
   return `
