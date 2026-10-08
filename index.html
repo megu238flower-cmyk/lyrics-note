@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="SKZ歌詞ノート">
+<meta name="theme-color" content="#f7f3ee">
+<link rel="apple-touch-icon" id="touchIcon">
+<title>Stray Kids 歌詞ノート</title>
+<style>
+:root {
+  --bg: #f7f3ee;
+  --card: #ffffff;
+  --ink: #3a332d;
+  --sub: #8a7f75;
+  --line: #e6ddd3;
+  --accent: #c9776b;
+  --accent-soft: #f3dfda;
+  --danger: #c0473b;
+  --skz: #6cbde8;   /* 🩵 */
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea { font: inherit; color: inherit; }
+.hidden { display: none !important; }
+
+/* ---------- 共通 ---------- */
+header.bar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 8px;
+  padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
+  background: rgba(247,243,238,.94);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+header.bar h1 { flex: 1; margin: 0; font-size: 20px; font-weight: 700; white-space: nowrap; }
+.app-title { color: var(--skz); letter-spacing: .02em; }
+@media (max-width: 500px) {
+  .wide { display: none; }
+  .app-title { font-size: 17px; }
+  #listView header.bar { gap: 6px; padding-left: 14px; padding-right: 14px; }
+  #listView header.bar .btn { padding: 9px 11px; }
+}
+header.bar h2 { flex: 1; margin: 0; font-size: 17px; font-weight: 600; text-align: center; }
+.btn {
+  border: none; border-radius: 12px; padding: 10px 14px;
+  background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.08);
+  font-size: 15px; white-space: nowrap;
+}
+.btn.primary { background: var(--accent); color: #fff; }
+.btn.ghost { background: transparent; box-shadow: none; color: var(--accent); padding: 10px 6px; }
+.btn.danger { color: var(--danger); }
+.btn:disabled { opacity: .4; }
+main { padding: 16px 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 960px; margin: 0 auto; }
+
+/* ---------- 曲一覧 ---------- */
+.search {
+  width: 100%; padding: 11px 14px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--card); font-size: 16px;
+  margin-bottom: 14px;
+}
+.songs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.song {
+  background: var(--card); border-radius: 14px; overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08); border: none; padding: 0; text-align: left;
+  display: flex; flex-direction: column;
+}
+.song .thumb {
+  aspect-ratio: 3 / 4; width: 100%; background: #eee center / cover no-repeat;
+  display: flex; align-items: center; justify-content: center; color: var(--sub); font-size: 30px;
+}
+.song .meta { padding: 9px 11px 11px; }
+.song .title { font-weight: 600; font-size: 15px; line-height: 1.35; word-break: break-all; }
+.song .count { color: var(--sub); font-size: 12px; margin-top: 2px; }
+.empty { text-align: center; color: var(--sub); padding: 60px 20px; line-height: 1.9; }
+.empty .big { font-size: 46px; }
+.toolbar { display: flex; gap: 8px; margin-bottom: 14px; align-items: center; }
+.toolbar .spacer { flex: 1; }
+.seg { display: inline-flex; background: #ebe4dc; border-radius: 10px; padding: 3px; }
+.seg button { border: none; background: transparent; padding: 6px 12px; border-radius: 8px; font-size: 13px; }
+.seg button.on { background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.1); }
+
+/* ---------- 編集 ---------- */
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 13px; color: var(--sub); margin-bottom: 5px; }
+.field input, .field textarea {
+  width: 100%; padding: 11px 13px; border-radius: 12px; border: 1px solid var(--line);
+  background: var(--card); font-size: 16px;
+}
+.field textarea { min-height: 70px; resize: vertical; }
+.section-title { display: flex; align-items: center; justify-content: space-between; margin: 22px 0 10px; }
+.section-title h3 { margin: 0; font-size: 16px; }
+.add-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.add-row .btn { flex: 1; min-width: 140px; padding: 13px; }
+.pages { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.page-card { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.page-card .img { aspect-ratio: 3 / 4; background: #eee center / contain no-repeat; position: relative; }
+.page-card .num {
+  position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,.6); color: #fff;
+  font-size: 12px; padding: 2px 8px; border-radius: 10px;
+}
+.page-card .ops { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); }
+.page-card .ops button {
+  border: none; background: none; padding: 10px 0; font-size: 16px;
+  border-right: 1px solid var(--line);
+}
+.page-card .ops button:last-child { border-right: none; color: var(--danger); }
+.page-card .ops button:disabled { opacity: .25; }
+.danger-zone { margin-top: 36px; text-align: center; }
+
+/* ---------- ビューア ---------- */
+#viewer { position: fixed; inset: 0; background: #1c1a19; z-index: 50; overflow: hidden; }
+#viewer .track {
+  position: absolute; inset: 0; display: flex; overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+#viewer .track::-webkit-scrollbar { display: none; }
+#viewer .track.locked { overflow-x: hidden; }
+#viewer .slide {
+  flex: 0 0 100%; width: 100%; height: 100%; scroll-snap-align: start; scroll-snap-stop: always;
+  overflow: hidden; position: relative; touch-action: pan-x;
+}
+#viewer .slide img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+  transform-origin: 0 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+#viewer .vtop, #viewer .vbottom {
+  position: absolute; left: 0; right: 0; z-index: 2; color: #fff;
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  transition: opacity .2s;
+}
+#viewer .vtop {
+  top: 0; padding-top: calc(env(safe-area-inset-top) + 10px);
+  background: linear-gradient(rgba(0,0,0,.65), rgba(0,0,0,0));
+}
+#viewer .vbottom {
+  bottom: 0; justify-content: center; padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+  background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.55));
+}
+#viewer.ui-off .vtop, #viewer.ui-off .vbottom { opacity: 0; pointer-events: none; }
+#viewer .vtitle { flex: 1; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#viewer .vbtn {
+  border: none; background: rgba(255,255,255,.18); color: #fff; border-radius: 20px;
+  padding: 8px 14px; font-size: 15px;
+}
+#viewer .dots { display: flex; gap: 7px; align-items: center; }
+#viewer .dots span { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.35); }
+#viewer .dots span.on { background: #fff; }
+#viewer .pageno { font-size: 13px; opacity: .85; margin-left: 10px; }
+#viewer .vbottom .vbtn { padding: 7px 12px; font-size: 14px; }
+#viewer .vbottom .mid { display: flex; align-items: center; flex: 1; justify-content: center; min-width: 0; }
+#viewer .vbtn:disabled { opacity: .3; }
+#songBanner {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 3;
+  background: rgba(0,0,0,.72); color: #fff; padding: 14px 22px; border-radius: 16px;
+  font-size: 17px; font-weight: 600; text-align: center; pointer-events: none;
+  opacity: 0; transition: opacity .3s; max-width: 80%;
+}
+#songBanner small { display: block; font-size: 12px; font-weight: 400; opacity: .8; margin-bottom: 4px; }
+#songBanner.show { opacity: 1; }
+
+/* ---------- プレイリスト ---------- */
+.pl-card { position: relative; }
+.pl-card .thumb { position: relative; }
+.pl-card .badge {
+  position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.6); color: #fff;
+  font-size: 12px; padding: 3px 9px; border-radius: 10px;
+}
+.list { background: var(--card); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.list .item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--line);
+  width: 100%; background: none; border-left: none; border-right: none; border-top: none; text-align: left;
+}
+.list .item:last-child { border-bottom: none; }
+.list .item .no { width: 24px; text-align: center; color: var(--sub); font-size: 14px; flex-shrink: 0; }
+.list .item .mini { width: 42px; height: 56px; border-radius: 6px; background: #eee center / cover no-repeat; flex-shrink: 0; }
+.list .item .info { flex: 1; min-width: 0; }
+.list .item .info .t { font-weight: 600; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list .item .info .a { color: var(--sub); font-size: 12px; margin-top: 2px; }
+.list .item .ib {
+  border: none; background: #f2ece6; border-radius: 9px; width: 36px; height: 36px; font-size: 15px; flex-shrink: 0;
+}
+.list .item .ib:disabled { opacity: .3; }
+.list .item .ib.del { color: var(--danger); }
+.list .item .ib.add { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.list .none { padding: 16px; color: var(--sub); font-size: 14px; }
+.play-big { width: 100%; padding: 14px; font-size: 16px; margin-bottom: 16px; }
+
+/* ---------- バックアップ ---------- */
+.card { background: var(--card); border-radius: 14px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 16px; }
+.card h3 { margin: 0 0 6px; font-size: 16px; }
+.card p { margin: 0 0 12px; color: var(--sub); font-size: 14px; line-height: 1.7; }
+.check-list { max-height: 320px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 12px; }
+.check-list label { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-bottom: 1px solid var(--line); font-size: 15px; }
+.check-list label:last-child { border-bottom: none; }
+.check-list input { width: 20px; height: 20px; accent-color: var(--accent); }
+.check-list small { color: var(--sub); margin-left: auto; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row .btn { flex: 1; }
+
+/* ---------- トースト・読み込み中 ---------- */
+#toast {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 30px); transform: translateX(-50%);
+  background: rgba(40,35,30,.92); color: #fff; padding: 11px 18px; border-radius: 22px;
+  font-size: 14px; z-index: 100; opacity: 0; transition: opacity .25s; pointer-events: none; max-width: 90%;
+  text-align: center;
+}
+#toast.show { opacity: 1; }
+#busy {
+  position: fixed; inset: 0; background: rgba(247,243,238,.8); z-index: 90;
+  display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px;
+  font-size: 15px;
+}
+.spinner { width: 34px; height: 34px; border: 3px solid var(--accent-soft); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- 曲一覧 -->
+<section id="listView">
+  <header class="bar">
+    <h1 class="app-title">Stray Kids 歌詞ノート</h1>
+    <button class="btn" onclick="showBackup()">📲<span class="wide"> 送る・受け取る</span></button>
+    <button class="btn primary" onclick="addNew()">＋<span class="wide" id="addLabel"> 曲を</span>追加</button>
+  </header>
+  <main>
+    <div class="seg" id="tabSeg" style="display:flex;margin-bottom:14px">
+      <button style="flex:1;font-size:15px;padding:9px" data-tab="songs" onclick="setTab('songs')">🎵 曲</button>
+      <button style="flex:1;font-size:15px;padding:9px" data-tab="playlists" onclick="setTab('playlists')">📋 プレイリスト</button>
+    </div>
+    <div id="songsTab">
+      <input class="search" id="search" type="search" placeholder="曲名でさがす" oninput="renderList()">
+      <div class="toolbar">
+        <span class="spacer"></span>
+        <span id="songCount" style="color:var(--sub);font-size:13px"></span>
+      </div>
+      <div class="songs" id="songs"></div>
+      <div class="empty hidden" id="empty">
+        <div class="big">📝</div>
+        まだ曲がないよ<br>右上の「＋ 追加」から<br>手書きの歌詞を撮って登録してね
+      </div>
+    </div>
+    <div id="playlistsTab" class="hidden">
+      <div class="songs" id="playlists"></div>
+      <div class="empty hidden" id="plEmpty">
+        <div class="big">📋</div>
+        プレイリストはまだないよ<br>右上の「＋ 追加」から作ってね<br>ライブのセトリや練習用にどうぞ
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- プレイリストの中身 -->
+<section id="playlistView" class="hidden">
+  <header class="bar">
+    <button class="btn ghost" onclick="showList()">‹ 戻る</button>
+    <h2 id="plTitle"></h2>
+    <button class="btn" onclick="editPlaylist(curPlaylist.id)">編集</button>
+  </header>
+  <main>
+    <button class="btn primary play-big" onclick="playPlaylist(0)">▶︎ 最初から見る</button>
+    <div style="color:var(--sub);font-size:13px;margin:0 0 8px 4px">曲をタップするとその曲から見られるよ</div>
+    <div class="list" id="plSongs"></div>
+  </main>
+</section>
+
+<!-- プレイリスト編集 -->
+<section id="playlistEditView" class="hidden">
+  <header class="bar">
+    <button class="btn ghost" onclick="closePlaylistEdit()">‹ 戻る</button>
+    <h2 id="plEditHeading">プレイリスト</h2>
+    <button class="btn primary" onclick="savePlaylist()">保存</button>
+  </header>
+  <main>
+    <div class="field"><label>プレイリストの名前</label><input id="plName" placeholder="例：11/8 ライブ用、練習リスト"></div>
+    <div class="section-title"><h3>入っている曲 <span id="plCount" style="color:var(--sub);font-weight:400"></span></h3></div>
+    <div class="list" id="plEditSongs"></div>
+    <div class="section-title"><h3>曲を追加する</h3></div>
+    <input class="search" id="plSearch" type="search" placeholder="曲名でさがす" oninput="renderPlaylistPicker()">
+    <div class="list" id="plPicker"></div>
+    <div class="danger-zone" id="plDeleteZone">
+      <button class="btn danger" onclick="deletePlaylist()">🗑 このプレイリストを削除</button>
+      <div style="color:var(--sub);font-size:12px;margin-top:8px">曲そのものは消えないよ</div>
+    </div>
+  </main>
+</section>
+
+<!-- 編集 -->
+<section id="editView" class="hidden">
+  <header class="bar">
+    <button class="btn ghost" onclick="closeEdit()">‹ 戻る</button>
+    <h2 id="editHeading">曲を編集</h2>
+    <button class="btn primary" onclick="saveSong()">保存</button>
+  </header>
+  <main>
+    <div class="field"><label>曲名</label><input id="fTitle" placeholder="例：ばらの花"></div>
+    <div class="field"><label>メモ（なくてもOK）</label><textarea id="fMemo" placeholder="キー、テンポ、気をつけるところなど"></textarea></div>
+
+    <div class="section-title"><h3>歌詞のページ <span id="pageCount" style="color:var(--sub);font-weight:400"></span></h3></div>
+    <div class="add-row">
+      <button class="btn" onclick="document.getElementById('camInput').click()">📷 カメラで撮る</button>
+      <button class="btn" onclick="document.getElementById('libInput').click()">🖼️ 写真から選ぶ</button>
+    </div>
+    <input type="file" id="camInput" accept="image/*" capture="environment" class="hidden" onchange="addFiles(this)">
+    <input type="file" id="libInput" accept="image/*" multiple class="hidden" onchange="addFiles(this)">
+    <div class="pages" id="pages"></div>
+
+    <div class="danger-zone" id="deleteZone">
+      <button class="btn danger" onclick="deleteSong()">🗑 この曲を削除</button>
+    </div>
+  </main>
+</section>
+
+<!-- バックアップ（AirDrop） -->
+<section id="backupView" class="hidden">
+  <header class="bar">
+    <button class="btn ghost" onclick="showList()">‹ 戻る</button>
+    <h2>送る・受け取る</h2>
+    <span style="width:60px"></span>
+  </header>
+  <main>
+    <div class="card">
+      <h3>📤 送る（AirDrop）</h3>
+      <p>送りたい曲を選んで「送る」を押すと共有メニューが開くよ。そこで AirDrop → 相手の端末を選んでね。<br>選んだ曲が入っているプレイリストも一緒に届くよ。</p>
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn" onclick="checkAll(true)">全部えらぶ</button>
+        <button class="btn" onclick="checkAll(false)">全部はずす</button>
+      </div>
+      <div class="check-list" id="exportList"></div>
+      <button class="btn primary" style="width:100%;padding:13px" onclick="exportSongs()">📤 選んだ曲を送る</button>
+    </div>
+    <div class="card">
+      <h3>📥 受け取る</h3>
+      <p>AirDropで届いたファイルは「ファイル」アプリの「ダウンロード」に入るよ。下のボタンからそのファイルを選んでね。<br>同じ曲がすでにあるときは、届いた内容で上書きされるよ。</p>
+      <button class="btn primary" style="width:100%;padding:13px" onclick="document.getElementById('importInput').click()">📥 ファイルを選んで読み込む</button>
+      <input type="file" id="importInput" class="hidden" onchange="importFile(this)">
+    </div>
+    <div class="card">
+      <h3>💡 写真の保存場所</h3>
+      <p>歌詞の写真はこの端末の中だけに保存されていて、ネットには上がらないよ。そのぶん、端末をなくしたり買い替えたりすると消えちゃうので、ときどきここから「全部えらぶ → 送る」で、もう片方の端末か「ファイルに保存」でバックアップしておくと安心だよ。</p>
+    </div>
+  </main>
+</section>
+
+<!-- ビューア -->
+<div id="viewer" class="hidden">
+  <div class="track" id="track"></div>
+  <div class="vtop">
+    <button class="vbtn" onclick="closeViewer()">‹ 戻る</button>
+    <div class="vtitle" id="vTitle"></div>
+    <button class="vbtn" onclick="editFromViewer()">編集</button>
+  </div>
+  <div class="vbottom">
+    <button class="vbtn hidden" id="prevSong" onclick="jumpSong(-1)">⏮ 前の曲</button>
+    <div class="mid">
+      <div class="dots" id="dots"></div>
+      <span class="pageno" id="pageNo"></span>
+    </div>
+    <button class="vbtn hidden" id="nextSong" onclick="jumpSong(1)">次の曲 ⏭</button>
+  </div>
+  <div id="songBanner"></div>
+</div>
+
+<div id="toast"></div>
+<div id="busy" class="hidden"><div class="spinner"></div><div id="busyText">処理中…</div></div>
+
+<script>
+/* ================= データベース（端末内 IndexedDB） =================
+   songs: { id, title, artist, memo, pageIds:[], createdAt, updatedAt }
+   pages: { id, blob, thumb }
+   playlists: { id, name, songIds:[], createdAt, updatedAt }            */
+const DB_NAME = 'lyricsNoteDB';
+let db;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 2);
+    req.onupgradeneeded = () => {
+      const d = req.result;
+      if (!d.objectStoreNames.contains('songs')) d.createObjectStore('songs', { keyPath: 'id' });
+      if (!d.objectStoreNames.contains('pages')) d.createObjectStore('pages', { keyPath: 'id' });
+      if (!d.objectStoreNames.contains('playlists')) d.createObjectStore('playlists', { keyPath: 'id' });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+function tx(stores, mode, fn) {
+  return new Promise((resolve, reject) => {
+    const t = db.transaction(stores, mode);
+    const out = fn(t);
+    t.oncomplete = () => resolve(out);
+    t.onerror = () => reject(t.error);
+    t.onabort = () => reject(t.error);
+  });
+}
+function reqP(r) { return new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
+async function getAllSongs() {
+  const t = db.transaction('songs');
+  return reqP(t.objectStore('songs').getAll());
+}
+async function getAllPlaylists() {
+  const t = db.transaction('playlists');
+  return reqP(t.objectStore('playlists').getAll());
+}
+async function getPage(id) {
+  const t = db.transaction('pages');
+  return reqP(t.objectStore('pages').get(id));
+}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+/* ================= 画像処理 ================= */
+const MAX_SIDE = 2000;   // 文字がつぶれない大きさ
+const THUMB_SIDE = 360;
+
+function loadImage(blob) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => { resolve(img); URL.revokeObjectURL(url); };
+    img.onerror = () => { reject(new Error('画像を読み込めなかったよ')); URL.revokeObjectURL(url); };
+    img.src = url;
+  });
+}
+function canvasToBlob(canvas, q) {
+  return new Promise(res => canvas.toBlob(res, 'image/jpeg', q));
+}
+async function resize(img, maxSide, quality, rotate = 0) {
+  let w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+  const s = Math.min(1, maxSide / Math.max(w, h));
+  w = Math.round(w * s); h = Math.round(h * s);
+  const c = document.createElement('canvas');
+  const sideways = rotate % 180 !== 0;
+  c.width = sideways ? h : w; c.height = sideways ? w : h;
+  const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+  g.translate(c.width / 2, c.height / 2);
+  g.rotate(rotate * Math.PI / 180);
+  g.drawImage(img, -w / 2, -h / 2, w, h);
+  return canvasToBlob(c, quality);
+}
+async function makePage(file) {
+  const img = await loadImage(file);
+  const blob = await resize(img, MAX_SIDE, 0.85);
+  const thumb = await resize(img, THUMB_SIDE, 0.75);
+  return { id: uid(), blob, thumb };
+}
+
+/* ================= 画面切り替え ================= */
+const views = ['listView', 'editView', 'backupView', 'playlistView', 'playlistEditView'];
+let curView = 'listView';
+function show(id) {
+  views.forEach(v => document.getElementById(v).classList.toggle('hidden', v !== id));
+  curView = id;
+  window.scrollTo(0, 0);
+}
+function toast(msg, ms = 2200) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), ms);
+}
+function busy(on, text = '処理中…') {
+  document.getElementById('busy').classList.toggle('hidden', !on);
+  document.getElementById('busyText').textContent = text;
+}
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+/* ================= 曲一覧 ================= */
+let songsCache = [];
+let playlistsCache = [];
+let tab = 'songs';
+try { tab = localStorage.getItem('lyricsTab') || 'songs'; } catch (e) {}
+const thumbUrls = new Map();
+function setTab(t) {
+  tab = t;
+  try { localStorage.setItem('lyricsTab', t); } catch (e) {}
+  renderTabs();
+}
+function renderTabs() {
+  document.querySelectorAll('#tabSeg button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  document.getElementById('songsTab').classList.toggle('hidden', tab !== 'songs');
+  document.getElementById('playlistsTab').classList.toggle('hidden', tab !== 'playlists');
+  document.getElementById('addLabel').textContent = tab === 'songs' ? ' 曲を' : ' リストを';
+  if (tab === 'songs') renderList(); else renderPlaylists();
+}
+function addNew() { tab === 'songs' ? newSong() : newPlaylist(); }
+function songById(id) { return songsCache.find(s => s.id === id); }
+async function refresh() {
+  songsCache = await getAllSongs();
+  playlistsCache = await getAllPlaylists();
+  renderTabs();
+}
+async function setThumb(el, pageId) {
+  if (!pageId) return;
+  const url = await thumbUrlFor(pageId);
+  if (url) el.style.backgroundImage = `url(${url})`;
+}
+async function thumbUrlFor(pageId) {
+  if (thumbUrls.has(pageId)) return thumbUrls.get(pageId);
+  const p = await getPage(pageId);
+  if (!p) return null;
+  const url = URL.createObjectURL(p.thumb || p.blob);
+  thumbUrls.set(pageId, url);
+  return url;
+}
+function showList() { show('listView'); refresh(); }
+
+function renderList() {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const list = songsCache
+    .filter(s => !q || s.title.toLowerCase().includes(q))
+    .sort((a, b) => a.title.localeCompare(b.title, 'ja'));
+
+  document.getElementById('songCount').textContent = songsCache.length ? `${songsCache.length}曲` : '';
+  document.getElementById('empty').classList.toggle('hidden', songsCache.length > 0);
+  const box = document.getElementById('songs');
+  box.innerHTML = list.map(s => `
+    <button class="song" onclick="openViewer('${s.id}')">
+      <div class="thumb" data-thumb="${s.pageIds[0] || ''}">${s.pageIds.length ? '' : '🎵'}</div>
+      <div class="meta">
+        <div class="title">${esc(s.title)}</div>
+        <div class="count">${s.pageIds.length}ページ</div>
+      </div>
+    </button>`).join('');
+  box.querySelectorAll('[data-thumb]').forEach(el => setThumb(el, el.dataset.thumb));
+}
+
+/* ================= プレイリスト ================= */
+let curPlaylist = null;
+let plEditing = null;   // { id, isNew, name, songIds:[] }
+
+function plSongs(pl) { return pl.songIds.map(songById).filter(Boolean); }
+
+function renderPlaylists() {
+  const list = [...playlistsCache].sort((a, b) => b.createdAt - a.createdAt);
+  document.getElementById('plEmpty').classList.toggle('hidden', list.length > 0);
+  const box = document.getElementById('playlists');
+  box.innerHTML = list.map(p => {
+    const ss = plSongs(p);
+    return `
+    <button class="song pl-card" onclick="openPlaylist('${p.id}')">
+      <div class="thumb" data-thumb="${ss[0]?.pageIds[0] || ''}">${ss.length ? '' : '📋'}<span class="badge">${ss.length}曲</span></div>
+      <div class="meta">
+        <div class="title">${esc(p.name)}</div>
+        <div class="count">${esc(ss.slice(0, 3).map(s => s.title).join('、'))}${ss.length > 3 ? ' …' : ''}</div>
+      </div>
+    </button>`;
+  }).join('');
+  box.querySelectorAll('[data-thumb]').forEach(el => setThumb(el, el.dataset.thumb));
+}
+function songRow(s, i, buttons = '') {
+  return `
+    <span class="no">${i + 1}</span>
+    <span class="mini" data-thumb="${s.pageIds[0] || ''}"></span>
+    <span class="info"><div class="t">${esc(s.title)}</div><div class="a">${s.pageIds.length}ページ</div></span>
+    ${buttons}`;
+}
+function openPlaylist(id) {
+  curPlaylist = playlistsCache.find(p => p.id === id);
+  if (!curPlaylist) return;
+  document.getElementById('plTitle').textContent = curPlaylist.name;
+  const ss = plSongs(curPlaylist);
+  const box = document.getElementById('plSongs');
+  box.innerHTML = ss.length
+    ? ss.map((s, i) => `<button class="item" onclick="playPlaylist(${i})">${songRow(s, i, '<span style="color:var(--sub)">▶︎</span>')}</button>`).join('')
+    : '<div class="none">まだ曲が入ってないよ。「編集」から追加してね。</div>';
+  box.querySelectorAll('[data-thumb]').forEach(el => setThumb(el, el.dataset.thumb));
+  show('playlistView');
+}
+function playPlaylist(startIdx) {
+  const ss = plSongs(curPlaylist);
+  if (!ss.length) { toast('曲が入ってないよ'); return; }
+  openViewer(ss.map(s => s.id), startIdx);
+}
+
+function newPlaylist() {
+  plEditing = { id: uid(), isNew: true, songIds: [], dirty: false };
+  document.getElementById('plName').value = '';
+  document.getElementById('plSearch').value = '';
+  document.getElementById('plEditHeading').textContent = 'プレイリストを作る';
+  document.getElementById('plDeleteZone').classList.add('hidden');
+  renderPlaylistEdit();
+  show('playlistEditView');
+}
+function editPlaylist(id) {
+  const p = playlistsCache.find(x => x.id === id);
+  if (!p) return;
+  plEditing = { id: p.id, isNew: false, createdAt: p.createdAt, songIds: p.songIds.filter(songById), dirty: false };
+  document.getElementById('plName').value = p.name;
+  document.getElementById('plSearch').value = '';
+  document.getElementById('plEditHeading').textContent = 'プレイリストを編集';
+  document.getElementById('plDeleteZone').classList.remove('hidden');
+  renderPlaylistEdit();
+  show('playlistEditView');
+}
+function renderPlaylistEdit() {
+  const ids = plEditing.songIds, n = ids.length;
+  document.getElementById('plCount').textContent = n ? `（${n}曲）` : '';
+  const box = document.getElementById('plEditSongs');
+  box.innerHTML = n
+    ? ids.map((id, i) => `<div class="item">${songRow(songById(id), i, `
+        <button class="ib" onclick="plMove(${i},-1)" ${i === 0 ? 'disabled' : ''} aria-label="上へ">↑</button>
+        <button class="ib" onclick="plMove(${i},1)" ${i === n - 1 ? 'disabled' : ''} aria-label="下へ">↓</button>
+        <button class="ib del" onclick="plRemove(${i})" aria-label="外す">✕</button>`)}</div>`).join('')
+    : '<div class="none">下のリストから「＋」で曲を入れてね。入れた順に並ぶよ。</div>';
+  box.querySelectorAll('[data-thumb]').forEach(el => setThumb(el, el.dataset.thumb));
+  renderPlaylistPicker();
+}
+function renderPlaylistPicker() {
+  const q = document.getElementById('plSearch').value.trim().toLowerCase();
+  const list = [...songsCache]
+    .filter(s => !q || s.title.toLowerCase().includes(q))
+    .sort((a, b) => a.title.localeCompare(b.title, 'ja'));
+  const box = document.getElementById('plPicker');
+  box.innerHTML = list.length
+    ? list.map(s => {
+        const inCount = plEditing.songIds.filter(id => id === s.id).length;
+        return `<div class="item">
+          <span class="mini" data-thumb="${s.pageIds[0] || ''}"></span>
+          <span class="info"><div class="t">${esc(s.title)}</div><div class="a">${inCount ? '✓ 入っているよ' : `${s.pageIds.length}ページ`}</div></span>
+          <button class="ib add" onclick="plAdd('${s.id}')" aria-label="追加">＋</button>
+        </div>`;
+      }).join('')
+    : `<div class="none">${songsCache.length ? '見つからないよ' : 'まだ曲がないよ。先に「曲」タブで曲を登録してね。'}</div>`;
+  box.querySelectorAll('[data-thumb]').forEach(el => setThumb(el, el.dataset.thumb));
+}
+function plAdd(id) {
+  if (plEditing.songIds.includes(id) && !confirm('この曲はもう入ってるよ。もう1回入れる？')) return;
+  plEditing.songIds.push(id); plEditing.dirty = true;
+  renderPlaylistEdit();
+  toast(`「${songById(id).title}」を入れたよ`, 1400);
+}
+function plMove(i, d) {
+  const a = plEditing.songIds, j = i + d;
+  if (j < 0 || j >= a.length) return;
+  [a[i], a[j]] = [a[j], a[i]]; plEditing.dirty = true;
+  renderPlaylistEdit();
+}
+function plRemove(i) { plEditing.songIds.splice(i, 1); plEditing.dirty = true; renderPlaylistEdit(); }
+async function savePlaylist() {
+  const name = document.getElementById('plName').value.trim();
+  if (!name) { toast('名前を入れてね'); document.getElementById('plName').focus(); return; }
+  const now = Date.now();
+  const pl = { id: plEditing.id, name, songIds: plEditing.songIds, createdAt: plEditing.createdAt || now, updatedAt: now };
+  await tx(['playlists'], 'readwrite', t => t.objectStore('playlists').put(pl));
+  plEditing = null;
+  toast('保存しました ✓');
+  playlistsCache = await getAllPlaylists();
+  songsCache = await getAllSongs();
+  openPlaylist(pl.id);
+}
+function closePlaylistEdit() {
+  if (plEditing?.dirty && !confirm('保存しないで戻る？')) return;
+  const wasNew = plEditing?.isNew, id = plEditing?.id;
+  plEditing = null;
+  if (wasNew) showList(); else openPlaylist(id);
+}
+async function deletePlaylist() {
+  const p = playlistsCache.find(x => x.id === plEditing.id);
+  if (!p || !confirm(`プレイリスト「${p.name}」を削除する？\n（曲そのものは消えないよ）`)) return;
+  await tx(['playlists'], 'readwrite', t => t.objectStore('playlists').delete(p.id));
+  plEditing = null;
+  toast('削除しました');
+  showList();
+}
+
+/* ================= 編集 ================= */
+let editing = null;      // { id, isNew, pages:[{id, blob, thumb, url, isNew}] }
+let removedPageIds = [];
+let editReturn = 'listView';   // 編集を閉じたあとに戻る画面
+
+function newSong() {
+  editReturn = curView;
+  editing = { id: uid(), isNew: true, pages: [] };
+  removedPageIds = [];
+  document.getElementById('fTitle').value = '';
+  document.getElementById('fMemo').value = '';
+  document.getElementById('editHeading').textContent = '曲を追加';
+  document.getElementById('deleteZone').classList.add('hidden');
+  renderPages();
+  show('editView');
+}
+async function editSong(id) {
+  const s = songsCache.find(x => x.id === id);
+  if (!s) return;
+  editReturn = curView;
+  busy(true, '読み込み中…');
+  const pages = [];
+  for (const pid of s.pageIds) {
+    const p = await getPage(pid);
+    if (p) pages.push({ ...p, url: URL.createObjectURL(p.thumb || p.blob), isNew: false, rotate: 0 });
+  }
+  busy(false);
+  editing = { id: s.id, isNew: false, pages, createdAt: s.createdAt, artist: s.artist };
+  removedPageIds = [];
+  document.getElementById('fTitle').value = s.title;
+  document.getElementById('fMemo').value = s.memo || '';
+  document.getElementById('editHeading').textContent = '曲を編集';
+  document.getElementById('deleteZone').classList.remove('hidden');
+  renderPages();
+  show('editView');
+}
+function renderPages() {
+  const n = editing.pages.length;
+  document.getElementById('pageCount').textContent = n ? `（${n}ページ）` : '';
+  const box = document.getElementById('pages');
+  if (!n) {
+    box.innerHTML = `<div style="grid-column:1/-1;color:var(--sub);font-size:14px;padding:10px 0">上のボタンで1ページ目から順番に追加してね。「写真から選ぶ」なら何枚かまとめて選べるよ。あとから並べ替えもできるよ。</div>`;
+    return;
+  }
+  box.innerHTML = editing.pages.map((p, i) => `
+    <div class="page-card">
+      <div class="img" style="background-image:url(${p.url})"><span class="num">${i + 1}</span></div>
+      <div class="ops">
+        <button onclick="movePage(${i},-1)" ${i === 0 ? 'disabled' : ''} aria-label="前へ">◀︎</button>
+        <button onclick="movePage(${i},1)" ${i === n - 1 ? 'disabled' : ''} aria-label="後ろへ">▶︎</button>
+        <button onclick="rotatePage(${i})" aria-label="回転">↻</button>
+        <button onclick="removePage(${i})" aria-label="削除">✕</button>
+      </div>
+    </div>`).join('');
+}
+async function addFiles(input) {
+  const files = [...input.files];
+  input.value = '';
+  if (!files.length) return;
+  for (let i = 0; i < files.length; i++) {
+    busy(true, `写真を取り込み中… ${i + 1} / ${files.length}`);
+    try {
+      const p = await makePage(files[i]);
+      p.url = URL.createObjectURL(p.thumb);
+      p.isNew = true;
+      editing.pages.push(p);
+    } catch (e) {
+      toast('読み込めない写真があったよ');
+    }
+  }
+  busy(false);
+  renderPages();
+}
+function movePage(i, d) {
+  const a = editing.pages, j = i + d;
+  if (j < 0 || j >= a.length) return;
+  [a[i], a[j]] = [a[j], a[i]];
+  renderPages();
+}
+async function rotatePage(i) {
+  const p = editing.pages[i];
+  busy(true, '回転中…');
+  try {
+    const img = await loadImage(p.blob);
+    p.blob = await resize(img, MAX_SIDE, 0.9, 90);
+    const img2 = await loadImage(p.blob);
+    p.thumb = await resize(img2, THUMB_SIDE, 0.75);
+    URL.revokeObjectURL(p.url);
+    p.url = URL.createObjectURL(p.thumb);
+    p.changed = true;
+  } finally { busy(false); }
+  renderPages();
+}
+function removePage(i) {
+  if (!confirm(`${i + 1}ページ目を外す？`)) return;
+  const [p] = editing.pages.splice(i, 1);
+  if (!p.isNew) removedPageIds.push(p.id);
+  renderPages();
+}
+async function saveSong() {
+  const title = document.getElementById('fTitle').value.trim();
+  if (!title) { toast('曲名を入れてね'); document.getElementById('fTitle').focus(); return; }
+  if (!editing.pages.length) { toast('歌詞の写真を1枚以上追加してね'); return; }
+  busy(true, '保存中…');
+  try {
+    const now = Date.now();
+    const song = {
+      id: editing.id, title,
+      artist: editing.artist || '',
+      memo: document.getElementById('fMemo').value.trim(),
+      pageIds: editing.pages.map(p => p.id),
+      createdAt: editing.createdAt || now, updatedAt: now,
+    };
+    await tx(['songs', 'pages'], 'readwrite', t => {
+      const ps = t.objectStore('pages');
+      editing.pages.forEach(p => { if (p.isNew || p.changed) ps.put({ id: p.id, blob: p.blob, thumb: p.thumb }); });
+      removedPageIds.forEach(id => ps.delete(id));
+      t.objectStore('songs').put(song);
+    });
+    editing.pages.forEach(p => { thumbUrls.delete(p.id); URL.revokeObjectURL(p.url); });
+    editing = null;
+    busy(false);
+    toast('保存しました ✓');
+    backFromEdit();
+  } catch (e) {
+    busy(false);
+    alert('保存できなかったよ。端末の空き容量を確認してね。\n' + e.message);
+  }
+}
+function closeEdit() {
+  const dirty = editing && (editing.pages.some(p => p.isNew || p.changed) || removedPageIds.length);
+  if (dirty && !confirm('保存しないで戻る？（追加した写真は消えるよ）')) return;
+  if (editing) editing.pages.forEach(p => URL.revokeObjectURL(p.url));
+  editing = null;
+  backFromEdit();
+}
+async function backFromEdit() {
+  if (editReturn === 'playlistView' && curPlaylist) {
+    songsCache = await getAllSongs();
+    playlistsCache = await getAllPlaylists();
+    openPlaylist(curPlaylist.id);
+  } else showList();
+}
+async function deleteSong() {
+  const s = songsCache.find(x => x.id === editing.id);
+  if (!s || !confirm(`「${s.title}」を削除する？\n元には戻せないよ。`)) return;
+  await tx(['songs', 'pages', 'playlists'], 'readwrite', t => {
+    s.pageIds.forEach(id => t.objectStore('pages').delete(id));
+    t.objectStore('songs').delete(s.id);
+    playlistsCache.filter(p => p.songIds.includes(s.id)).forEach(p =>
+      t.objectStore('playlists').put({ ...p, songIds: p.songIds.filter(id => id !== s.id) }));
+  });
+  editing.pages.forEach(p => URL.revokeObjectURL(p.url));
+  editing = null;
+  toast('削除しました');
+  backFromEdit();
+}
+
+/* ================= ビューア =================
+   1曲だけでも、プレイリスト（複数曲）でも、全ページを1本につなげて表示する。
+   seq: [{ songNo, song, page, pages }]  ※ songNo = 何曲目か                 */
+let viewSong = null, viewSongs = [], seq = [], viewUrls = [], curIndex = 0, wakeLock = null;
+let lastSongNo = -1, bannerTimer = null;
+const viewer = document.getElementById('viewer');
+const track = document.getElementById('track');
+
+async function openViewer(ids, startSongNo = 0) {
+  if (typeof ids === 'string') ids = [ids];
+  viewSongs = ids.map(songById).filter(Boolean);
+  if (!viewSongs.length) return;
+  busy(true, '読み込み中…');
+  seq = []; viewUrls = [];
+  for (let n = 0; n < viewSongs.length; n++) {
+    const s = viewSongs[n];
+    for (let k = 0; k < s.pageIds.length; k++) {
+      const p = await getPage(s.pageIds[k]);
+      if (!p) continue;
+      viewUrls.push(URL.createObjectURL(p.blob));
+      seq.push({ songNo: n, song: s, page: k, pages: s.pageIds.length });
+    }
+  }
+  busy(false);
+  // 近くのページから順に読み込まれるよう、最初の数枚以外は lazy にする
+  track.innerHTML = viewUrls.map((u, i) => `<div class="slide"><img src="${u}" draggable="false" ${i > 2 ? 'loading="lazy"' : ''}></div>`).join('');
+  const multi = viewSongs.length > 1;
+  document.getElementById('prevSong').classList.toggle('hidden', !multi);
+  document.getElementById('nextSong').classList.toggle('hidden', !multi);
+  viewer.classList.remove('hidden', 'ui-off');
+  document.body.style.overflow = 'hidden';
+  const start = Math.max(0, seq.findIndex(x => x.songNo === startSongNo));
+  curIndex = start; lastSongNo = -1;
+  track.scrollLeft = start * track.clientWidth;
+  requestAnimationFrame(() => { track.scrollLeft = start * track.clientWidth; });
+  updateIndicator();
+  keepAwake();
+}
+function closeViewer() {
+  viewer.classList.add('hidden');
+  document.body.style.overflow = '';
+  track.innerHTML = '';
+  viewUrls.forEach(u => URL.revokeObjectURL(u));
+  viewUrls = []; seq = []; viewSongs = []; viewSong = null;
+  document.getElementById('songBanner').classList.remove('show');
+  releaseAwake();
+}
+function editFromViewer() { const id = viewSong.id; closeViewer(); editSong(id); }
+function updateIndicator() {
+  const cur = seq[curIndex];
+  if (!cur) return;
+  viewSong = cur.song;
+  const multi = viewSongs.length > 1;
+  document.getElementById('vTitle').textContent = multi
+    ? `${cur.songNo + 1}/${viewSongs.length}曲目　${cur.song.title}`
+    : cur.song.title;
+  const dots = document.getElementById('dots');
+  if (cur.songNo !== lastSongNo) {
+    dots.innerHTML = Array.from({ length: cur.pages }, () => '<span></span>').join('');
+    if (multi && lastSongNo !== -1) showSongBanner(cur);
+    lastSongNo = cur.songNo;
+  }
+  dots.querySelectorAll('span').forEach((d, i) => d.classList.toggle('on', i === cur.page));
+  document.getElementById('pageNo').textContent = `${cur.page + 1} / ${cur.pages}`;
+  document.getElementById('prevSong').disabled = cur.songNo === 0 && cur.page === 0;
+  document.getElementById('nextSong').disabled = cur.songNo === viewSongs.length - 1;
+}
+function showSongBanner(cur) {
+  const b = document.getElementById('songBanner');
+  b.innerHTML = `<small>${cur.songNo + 1}曲目</small>${esc(cur.song.title)}`;
+  b.classList.add('show');
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(() => b.classList.remove('show'), 1500);
+}
+function jumpSong(d) {
+  const cur = seq[curIndex];
+  if (!cur) return;
+  // 「前の曲」は、曲の途中なら今の曲の1ページ目へ戻る
+  let target = cur.songNo + d;
+  if (d < 0 && cur.page > 0) target = cur.songNo;
+  const i = seq.findIndex(x => x.songNo === target);
+  if (i >= 0) { resetZoom(); track.scrollLeft = i * track.clientWidth; }
+}
+track.addEventListener('scroll', () => {
+  const i = Math.round(track.scrollLeft / track.clientWidth);
+  if (i !== curIndex && seq[i]) { resetZoom(); curIndex = i; updateIndicator(); }
+}, { passive: true });
+window.addEventListener('resize', () => {
+  if (viewSong) { resetZoom(); track.scrollLeft = curIndex * track.clientWidth; }
+});
+document.addEventListener('keydown', e => {
+  if (!viewSong) return;
+  if (e.key === 'ArrowRight') goTo(curIndex + 1);
+  if (e.key === 'ArrowLeft') goTo(curIndex - 1);
+  if (e.key === 'Escape') closeViewer();
+});
+function goTo(i) {
+  if (i < 0 || i >= viewUrls.length) return;
+  track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
+}
+
+/* 画面を暗くしない */
+async function keepAwake() {
+  try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+}
+function releaseAwake() { try { wakeLock && wakeLock.release(); } catch (e) {} wakeLock = null; }
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && viewSong) keepAwake();
+});
+
+/* ピンチで拡大・ダブルタップで拡大／もどす・タップでボタン表示切替 */
+let zoom = { s: 1, x: 0, y: 0 };
+let g = null;          // ジェスチャー中の状態
+let lastTap = 0, tapTimer = null;
+
+function curImg() { return track.children[curIndex]?.querySelector('img'); }
+function applyZoom(animate) {
+  const img = curImg(); if (!img) return;
+  img.style.transition = animate ? 'transform .25s' : 'none';
+  img.style.transform = `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.s})`;
+  track.classList.toggle('locked', zoom.s > 1.01);
+}
+function clampZoom() {
+  const w = track.clientWidth, h = track.clientHeight;
+  zoom.x = Math.min(0, Math.max(w - w * zoom.s, zoom.x));
+  zoom.y = Math.min(0, Math.max(h - h * zoom.s, zoom.y));
+}
+function resetZoom() {
+  if (zoom.s === 1 && zoom.x === 0 && zoom.y === 0) return;
+  zoom = { s: 1, x: 0, y: 0 };
+  document.querySelectorAll('#track img').forEach(i => { i.style.transform = ''; });
+  track.classList.remove('locked');
+}
+function pt(t) { const r = track.getBoundingClientRect(); return { x: t.clientX - r.left, y: t.clientY - r.top }; }
+
+track.addEventListener('touchstart', e => {
+  if (e.touches.length === 2) {
+    const a = pt(e.touches[0]), b = pt(e.touches[1]);
+    g = { type: 'pinch', d0: Math.hypot(a.x - b.x, a.y - b.y), s0: zoom.s, x0: zoom.x, y0: zoom.y,
+          mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
+    track.classList.add('locked');
+  } else if (e.touches.length === 1) {
+    const p = pt(e.touches[0]);
+    g = { type: zoom.s > 1.01 ? 'pan' : 'tap', sx: p.x, sy: p.y, x0: zoom.x, y0: zoom.y, moved: false };
+  }
+}, { passive: false });
+
+track.addEventListener('touchmove', e => {
+  if (!g) return;
+  if (g.type === 'pinch' && e.touches.length === 2) {
+    e.preventDefault();
+    const a = pt(e.touches[0]), b = pt(e.touches[1]);
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    const s = Math.min(5, Math.max(1, g.s0 * d / g.d0));
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    zoom.s = s;
+    zoom.x = mx - (g.mx - g.x0) * (s / g.s0);
+    zoom.y = my - (g.my - g.y0) * (s / g.s0);
+    clampZoom(); applyZoom(false);
+  } else if (g.type === 'pan' && e.touches.length === 1) {
+    e.preventDefault();
+    const p = pt(e.touches[0]);
+    zoom.x = g.x0 + (p.x - g.sx); zoom.y = g.y0 + (p.y - g.sy);
+    if (Math.abs(p.x - g.sx) + Math.abs(p.y - g.sy) > 8) g.moved = true;
+    clampZoom(); applyZoom(false);
+  } else if (g.type === 'tap' && e.touches.length === 1) {
+    const p = pt(e.touches[0]);
+    if (Math.abs(p.x - g.sx) + Math.abs(p.y - g.sy) > 10) g.moved = true;
+  }
+}, { passive: false });
+
+track.addEventListener('touchend', e => {
+  if (!g) return;
+  if (g.type === 'pinch') {
+    if (e.touches.length > 0) return;
+    if (zoom.s < 1.05) { zoom = { s: 1, x: 0, y: 0 }; applyZoom(true); }
+    g = null; return;
+  }
+  const wasTap = !g.moved;
+  const p = { x: g.sx, y: g.sy };
+  g = null;
+  if (!wasTap) return;
+  const now = Date.now();
+  if (now - lastTap < 300) {           // ダブルタップ
+    clearTimeout(tapTimer); lastTap = 0;
+    e.preventDefault();
+    if (zoom.s > 1.01) zoom = { s: 1, x: 0, y: 0 };
+    else { const s = 2.5; zoom = { s, x: p.x - p.x * s, y: p.y - p.y * s }; clampZoom(); }
+    applyZoom(true);
+  } else {                              // シングルタップ → ボタン表示切替
+    lastTap = now;
+    tapTimer = setTimeout(() => viewer.classList.toggle('ui-off'), 300);
+  }
+});
+
+/* パソコンでの確認用：クリックでボタン切替 */
+track.addEventListener('click', e => {
+  if (matchMedia('(hover: hover)').matches) viewer.classList.toggle('ui-off');
+});
+
+/* ================= 送る・受け取る（AirDrop） ================= */
+async function showBackup() {
+  songsCache = await getAllSongs();
+  const list = [...songsCache].sort((a, b) => a.title.localeCompare(b.title, 'ja'));
+  document.getElementById('exportList').innerHTML = list.length
+    ? list.map(s => `<label><input type="checkbox" value="${s.id}"> ${esc(s.title)}<small>${s.pageIds.length}ページ</small></label>`).join('')
+    : '<div style="padding:14px;color:var(--sub)">まだ曲がないよ</div>';
+  show('backupView');
+}
+function checkAll(on) { document.querySelectorAll('#exportList input').forEach(c => c.checked = on); }
+function blobToDataURL(blob) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+}
+async function dataURLToBlob(url) { return (await fetch(url)).blob(); }
+
+async function exportSongs() {
+  const ids = [...document.querySelectorAll('#exportList input:checked')].map(c => c.value);
+  if (!ids.length) { toast('送る曲を選んでね'); return; }
+  busy(true, 'ファイルを作成中…');
+  try {
+    const out = { app: 'lyrics-note', version: 1, exportedAt: new Date().toISOString(), songs: [] };
+    for (const id of ids) {
+      const s = songsCache.find(x => x.id === id);
+      const pages = [];
+      for (const pid of s.pageIds) {
+        const p = await getPage(pid);
+        if (p) pages.push(await blobToDataURL(p.blob));
+      }
+      out.songs.push({ id: s.id, title: s.title, artist: s.artist, memo: s.memo, createdAt: s.createdAt, updatedAt: s.updatedAt, pages });
+    }
+    out.playlists = (await getAllPlaylists()).filter(p => p.songIds.some(id => ids.includes(id)));
+    const d = new Date();
+    const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+    const name = ids.length === 1
+      ? `歌詞ノート_${out.songs[0].title.replace(/[\\/:*?"<>|]/g, '')}.json`
+      : `歌詞ノート_${ids.length}曲_${stamp}.json`;
+    const file = new File([JSON.stringify(out)], name, { type: 'application/json' });
+    busy(false);
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file] }); }
+      catch (e) { if (e.name !== 'AbortError') toast('共有できなかったよ'); }
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(file); a.download = name; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      toast('ファイルを保存したよ');
+    }
+  } catch (e) {
+    busy(false);
+    alert('ファイルを作れなかったよ。曲数を減らして試してみてね。\n' + e.message);
+  }
+}
+
+async function importFile(input) {
+  const file = input.files[0];
+  input.value = '';
+  if (!file) return;
+  busy(true, '読み込み中…');
+  try {
+    const data = JSON.parse(await file.text());
+    if (data.app !== 'lyrics-note' || !Array.isArray(data.songs)) throw new Error('歌詞ノートのファイルじゃないみたい');
+    const existing = new Map((await getAllSongs()).map(s => [s.id, s]));
+    let added = 0, updated = 0;
+    for (let n = 0; n < data.songs.length; n++) {
+      const s = data.songs[n];
+      busy(true, `読み込み中… ${n + 1} / ${data.songs.length}曲`);
+      const newPages = [];
+      for (const url of s.pages) {
+        const blob = await dataURLToBlob(url);
+        const img = await loadImage(blob);
+        newPages.push({ id: uid(), blob, thumb: await resize(img, THUMB_SIDE, 0.75) });
+      }
+      const old = existing.get(s.id);
+      await tx(['songs', 'pages'], 'readwrite', t => {
+        const ps = t.objectStore('pages');
+        if (old) old.pageIds.forEach(id => ps.delete(id));
+        newPages.forEach(p => ps.put(p));
+        t.objectStore('songs').put({
+          id: s.id, title: s.title, artist: s.artist || '', memo: s.memo || '',
+          pageIds: newPages.map(p => p.id),
+          createdAt: s.createdAt || Date.now(), updatedAt: s.updatedAt || Date.now(),
+        });
+      });
+      old ? updated++ : added++;
+    }
+    // プレイリスト：この端末にある曲だけ残して保存（同じプレイリストは上書き）
+    const haveIds = new Set((await getAllSongs()).map(s => s.id));
+    const pls = Array.isArray(data.playlists) ? data.playlists : [];
+    if (pls.length) {
+      await tx(['playlists'], 'readwrite', t => {
+        pls.forEach(p => t.objectStore('playlists').put({
+          id: p.id, name: p.name, songIds: (p.songIds || []).filter(id => haveIds.has(id)),
+          createdAt: p.createdAt || Date.now(), updatedAt: p.updatedAt || Date.now(),
+        }));
+      });
+    }
+    thumbUrls.forEach(u => URL.revokeObjectURL(u)); thumbUrls.clear();
+    busy(false);
+    alert(`読み込み完了！\n新しく追加：${added}曲\n上書き：${updated}曲${pls.length ? `\nプレイリスト：${pls.length}個` : ''}`);
+    showList();
+  } catch (e) {
+    busy(false);
+    alert('読み込めなかったよ。\n' + e.message);
+  }
+}
+
+/* ================= アイコン（ホーム画面用） ================= */
+function makeIcon() {
+  const c = document.createElement('canvas'); c.width = c.height = 180;
+  const g2 = c.getContext('2d');
+  g2.fillStyle = '#c9776b'; g2.fillRect(0, 0, 180, 180);
+  g2.fillStyle = '#fffaf5'; g2.beginPath();
+  g2.roundRect ? g2.roundRect(42, 30, 96, 120, 10) : g2.rect(42, 30, 96, 120); g2.fill();
+  g2.strokeStyle = '#e3c9c2'; g2.lineWidth = 4;
+  for (let y = 62; y <= 126; y += 20) { g2.beginPath(); g2.moveTo(56, y); g2.lineTo(124, y); g2.stroke(); }
+  g2.fillStyle = '#c9776b'; g2.font = 'bold 56px -apple-system, sans-serif'; g2.textAlign = 'center';
+  g2.fillText('♪', 104, 120);
+  document.getElementById('touchIcon').href = c.toDataURL('image/png');
+}
+
+/* ================= 起動 ================= */
+(async () => {
+  makeIcon();
+  try {
+    db = await openDB();
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+    await refresh();
+  } catch (e) {
+    alert('データを開けなかったよ。\n' + e.message);
+  }
+})();
+</script>
+</body>
+</html>
